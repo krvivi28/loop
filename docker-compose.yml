@@ -1,0 +1,12 @@
+# Local MongoDB for development:  docker compose up -d
+services:
+  mongo:
+    image: mongo:7
+    container_name: fitstack-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - fitstack-mongo:/data/db
+volumes:
+  fitstack-mongo:

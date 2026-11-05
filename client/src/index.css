@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 242 244 247;
+  --surface: 255 255 255;
+  --raised: 233 236 242;
+  --line: 215 220 229;
+  --ink: 22 27 38;
+  --muted: 92 101 120;
+  --good: 0 168 112;
+  --warn: 214 140 0;
+  --bad: 224 36 72;
+  --accent: 255 107 0;
+  --on-accent: 17 20 28;
+  color-scheme: light;
+}
+.dark {
+  --bg: 21 26 36;
+  --surface: 29 35 48;
+  --raised: 38 45 61;
+  --line: 50 59 78;
+  --ink: 238 241 246;
+  --muted: 140 150 170;
+  --good: 0 214 143;
+  --warn: 255 184 28;
+  --bad: 255 77 106;
+  color-scheme: dark;
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  @apply bg-bg font-sans text-ink antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+@layer components {
+  .card { @apply rounded-[1.25rem] border border-line/70 bg-surface p-4 md:p-5; }
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 font-display text-[17px] font-bold tracking-wide transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-accent { @apply btn bg-accent text-onaccent shadow-[0_8px_24px_-10px_rgb(var(--accent)/0.8)] hover:brightness-110; }
+  .btn-soft { @apply btn bg-raised text-ink hover:bg-line/60; }
+  .btn-ghost { @apply btn text-muted hover:bg-raised hover:text-ink; }
+  .btn-danger { @apply btn bg-bad/15 text-bad hover:bg-bad/25; }
+  .icon-btn { @apply inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-raised hover:text-ink active:scale-95; }
+  .input {
+    @apply min-h-[44px] w-full rounded-xl border border-line bg-bg px-3.5 text-[16px] text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30;
+  }
+  .field-label { @apply mb-1.5 block text-sm font-semibold text-muted; }
+  .chip {
+    @apply inline-flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-3.5 text-[15px] font-semibold text-ink transition active:scale-95;
+  }
+  .chip-on { @apply border-accent bg-accent/15 text-ink; }
+  .h-display { @apply font-display font-extrabold leading-none tracking-tight; }
+}
+
+:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+.pb-nav { padding-bottom: calc(6.5rem + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) { .pb-nav { padding-bottom: 3rem; } }
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: rgb(var(--raised)) !important;
+  border: 1px solid rgb(var(--line)) !important;
+  border-radius: 12px;
+  color: rgb(var(--ink));
+}
+.recharts-text { fill: rgb(var(--muted)); font-family: Barlow, system-ui, sans-serif; font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
