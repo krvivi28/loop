@@ -41,7 +41,8 @@ async function chat(messages: Msg[], opts: { json?: boolean; maxTokens?: number 
       }),
       signal: AbortSignal.timeout(60_000),
     });
-  } catch {
+  } catch (e) {
+    console.error('Gemini unreachable', e instanceof Error ? e.message : e, e instanceof Error ? e.cause : undefined);
     throw new HttpError(502, 'ai_unreachable', 'Could not reach Gemini. Try again.');
   }
   if (!res.ok) {
