@@ -9,7 +9,7 @@ import { haptic } from '../lib/feedback';
 import { compressImage } from '../lib/image';
 import { AiError, analyzeMeal } from '../lib/ai';
 import { savePhoto, usePhoto } from '../lib/photos';
-import { mealsOn, nutritionTotals, targetsFor } from '../lib/stats';
+import { mealsOn, nutritionTotals, recentFoods, targetsFor } from '../lib/stats';
 import type { MealLog, MealType } from '../lib/types';
 import { uid } from '../lib/uid';
 import { useApp } from '../state/AppContext';
@@ -42,13 +42,14 @@ export default function Food() {
   const meals = useMemo(() => mealsOn(data, date), [data, date]);
   const tot = nutritionTotals(meals);
   const tg = targetsFor(data, date);
+  const recent = useMemo(() => recentFoods(data, 10), [data]);
 
   const newMeal = (photo?: string): MealLog => ({
     id: uid(),
     date,
     mealType: guessMealType(),
     loggedAt: date === todayKey() ? new Date().toISOString() : isoAt(date, '13:00'),
-    foodItems: [],
+    foodItems: photo ? [] : [{ name: '', quantity: '' }],
     calories: 0, proteinG: 0, carbsG: 0, fatG: 0,
     source: photo ? 'ai' : 'manual',
   });
@@ -61,6 +62,19 @@ export default function Food() {
     } catch (e) {
       toast((e as Error).message, { tone: 'error' });
     }
+  };
+
+  const addFromRecent = (r: MealLog) => {
+    const base = newMeal();
+    setEditor({
+      meal: {
+        ...base,
+        foodItems: r.foodItems.map((f) => ({ ...f })),
+        calories: r.calories, proteinG: r.proteinG, carbsG: r.carbsG, fatG: r.fatG,
+        fiberG: r.fiberG, sugarG: r.sugarG, sodiumMg: r.sodiumMg,
+      },
+      isNew: true,
+    });
   };
 
   const remaining = tg.calories - tot.calories;
@@ -110,6 +124,24 @@ export default function Food() {
         <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ''; }} />
         <input ref={galRef} type="file" accept="image/*" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ''; }} />
       </div>
+
+      {recent.length > 0 && (
+        <div className="mb-6">
+          <span className="field-label">Recent</span>
+          <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            {recent.map((r) => (
+              <button
+                key={r.id}
+                className="shrink-0 rounded-xl border border-line bg-bg px-3.5 py-2.5 text-left transition hover:border-accent/50 active:scale-[0.97]"
+                onClick={() => addFromRecent(r)}
+              >
+                <div className="max-w-[170px] truncate text-[14.5px] font-semibold">{r.foodItems.map((f) => f.name).join(', ') || MEAL_TYPES[r.mealType]}</div>
+                <div className="text-xs text-muted">{r.calories} kcal · P{r.proteinG} C{r.carbsG} F{r.fatG}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {meals.length === 0 ? (
         <Empty icon={<UtensilsCrossed size={30} />} title="No meals logged" body="Snap a photo of your plate and AI estimates calories and macros. You can fix any number before saving." />

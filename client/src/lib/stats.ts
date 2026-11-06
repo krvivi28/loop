@@ -165,6 +165,22 @@ export function nutritionTotals(meals: MealLog[]) {
   );
 }
 
+/** Most-recently-logged meals, deduped newest first. Meals with named food items dedupe by those names; meals without any (just numbers typed in) fall back to deduping by meal type + macros. */
+export function recentFoods(data: AppData, limit = 10): MealLog[] {
+  const signature = (m: MealLog) => {
+    const names = m.foodItems.map((f) => f.name.trim().toLowerCase()).filter(Boolean).sort().join('|');
+    return names || `_${m.mealType}_${m.calories}_${m.proteinG}_${m.carbsG}_${m.fatG}`;
+  };
+
+  const byKey = new Map<string, MealLog>();
+  for (const m of [...data.meals].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt))) {
+    const key = signature(m);
+    if (byKey.has(key)) continue;
+    byKey.set(key, m);
+  }
+  return [...byKey.values()].slice(0, limit);
+}
+
 /** Training days get a calorie and protein bump. */
 export function targetsFor(data: AppData, date: string): Targets & { training: boolean } {
   const t = data.settings.targets;
