@@ -1,7 +1,7 @@
-export function Logo({ size = 30, withText = true }: { size?: number; withText?: boolean }) {
+export function Logo({ size = 30, withText = true, spin = false }: { size?: number; withText?: boolean; spin?: boolean }) {
   return (
     <div className="flex items-center gap-2">
-      <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
+      <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden className={spin ? 'animate-spin' : ''} style={spin ? { animationDuration: '1.1s' } : undefined}>
         <circle
           cx="16" cy="16" r="10.5" fill="none" stroke="rgb(var(--accent))" strokeWidth="4.3"
           strokeDasharray="57.6 8.4" strokeLinecap="round" transform="rotate(-104 16 16)"
