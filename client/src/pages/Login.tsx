@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Logo } from '../components/Logo';
 import { Chip } from '../components/ui';
@@ -38,6 +38,7 @@ export default function Login() {
   const [otp, setOtp] = useState<OtpResponse | null>(null);
   const [emailVal, setEmailVal] = useState('');
   const [passwordVal, setPasswordVal] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [wait, setWait] = useState(0);
@@ -144,11 +145,21 @@ export default function Login() {
                 value={emailVal} onChange={(e) => setEmailVal(e.target.value)}
               />
               <label className="field-label mt-4" htmlFor="password">Password</label>
-              <input
-                id="password" type="password" autoComplete="current-password" minLength={8}
-                className="input h-14 text-[19px] font-semibold" placeholder="At least 8 characters"
-                value={passwordVal} onChange={(e) => setPasswordVal(e.target.value)}
-              />
+              <div className="relative">
+                <input
+                  id="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" minLength={8}
+                  className="input h-14 pr-12 text-[19px] font-semibold" placeholder="At least 8 characters"
+                  value={passwordVal} onChange={(e) => setPasswordVal(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="icon-btn absolute right-2 top-1/2 -translate-y-1/2 text-muted"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               {error && <p className="mt-3 text-[15px] font-semibold text-bad">{error}</p>}
               <button className="btn-accent mt-5 h-14 w-full text-[20px]" disabled={busy || !emailVal.includes('@') || passwordVal.length < 8}>
                 {busy && <Loader2 className="animate-spin" size={20} />} Continue

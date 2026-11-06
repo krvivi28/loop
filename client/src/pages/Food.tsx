@@ -324,9 +324,10 @@ function MealEditor({ state, onClose }: { state: Editor; onClose: () => void }) 
                   type="number"
                   inputMode="decimal"
                   min={0}
+                  placeholder="0"
                   className="w-full bg-transparent font-display text-[26px] font-bold focus:outline-none"
-                  value={(m[f.key] as number | undefined) ?? 0}
-                  onChange={(e) => set({ [f.key]: Math.max(0, Number(e.target.value) || 0) } as Partial<MealLog>)}
+                  value={(m[f.key] as number | undefined) || ''}
+                  onChange={(e) => set({ [f.key]: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value)) } as Partial<MealLog>)}
                 />
               </label>
             ))}
