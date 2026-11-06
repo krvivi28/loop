@@ -14,7 +14,7 @@ const schema = z.object({
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_FROM: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
-  GEMINI_MODEL: z.string().default('gemini-2.0-flash'),
+  GEMINI_MODEL: z.string().default('gemini-3.8-flash'),
   CLIENT_ORIGIN: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
