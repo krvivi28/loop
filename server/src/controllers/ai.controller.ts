@@ -1,11 +1,11 @@
 import type { Request, Response } from 'express';
 import { aiConfigured, env } from '../config/env.js';
 import { ChatMessage, User } from '../models/index.js';
-import * as ai from '../services/openai.service.js';
+import * as ai from '../services/gemini.service.js';
 import { parseDataUrl } from './photos.controller.js';
 
 export function status(_req: Request, res: Response) {
-  res.json({ configured: aiConfigured(), model: env.OPENAI_MODEL });
+  res.json({ configured: aiConfigured(), model: env.GEMINI_MODEL });
 }
 
 export async function analyzeMeal(req: Request, res: Response) {

@@ -96,7 +96,7 @@ export default function Coach() {
       {!keyOk && (
         <div className="card mb-5 flex items-center gap-4 border-accent/50">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/15 text-accent"><KeyRound size={24} /></div>
-          <p className="flex-1 text-[15px]">AI is not set up on the server yet. Add <code className="font-semibold">OPENAI_API_KEY</code> to <code className="font-semibold">server/.env</code> and restart the server. Charts below work without it.</p>
+          <p className="flex-1 text-[15px]">AI is not set up on the server yet. Add <code className="font-semibold">GEMINI_API_KEY</code> to <code className="font-semibold">server/.env</code> and restart the server. Charts below work without it.</p>
         </div>
       )}
 

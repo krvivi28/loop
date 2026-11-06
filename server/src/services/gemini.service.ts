@@ -1,4 +1,4 @@
-/** All OpenAI calls happen here, on the server. The API key never reaches the browser. */
+/** All Gemini calls happen here, on the server. The API key never reaches the browser. */
 import { aiConfigured, env } from '../config/env.js';
 import { HttpError } from '../utils/httpError.js';
 
@@ -9,36 +9,52 @@ const SAFETY = `You are Loop Coach, a friendly, concise fitness and nutrition as
 Rules: give general information only, never medical advice. Never tell the user to start, stop or change the dose of a prescribed medicine; for anything about medicines, drug interactions or symptoms, tell them to ask their doctor or pharmacist.
 Be specific to the user's data, use numbers, keep it short, use "- " bullet lines and **bold** sparingly.`;
 
+function toGeminiParts(content: Content) {
+  if (typeof content === 'string') return [{ text: content }];
+  return content.map((c) => {
+    if (c.type === 'text') return { text: c.text };
+    const m = /^data:([^;]+);base64,(.+)$/.exec(c.image_url.url);
+    if (!m) throw new HttpError(400, 'bad_image', 'Invalid image data.');
+    return { inline_data: { mime_type: m[1], data: m[2] } };
+  });
+}
+
 async function chat(messages: Msg[], opts: { json?: boolean; maxTokens?: number } = {}) {
-  if (!aiConfigured()) throw new HttpError(503, 'ai_not_configured', 'AI is not set up on the server. Add OPENAI_API_KEY to server/.env and restart.');
+  if (!aiConfigured()) throw new HttpError(503, 'ai_not_configured', 'AI is not set up on the server. Add GEMINI_API_KEY to server/.env and restart.');
+  const system = messages.find((m) => m.role === 'system');
+  const turns = messages.filter((m) => m.role !== 'system');
+  const contents = turns.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: toGeminiParts(m.content) }));
+
   let res: Response;
   try {
-    res = await fetch('https://api.openai.com/v1/chat/completions', {
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: env.OPENAI_MODEL,
-        messages,
-        max_tokens: opts.maxTokens ?? 800,
-        temperature: 0.4,
-        ...(opts.json ? { response_format: { type: 'json_object' } } : {}),
+        contents,
+        ...(system ? { systemInstruction: { parts: toGeminiParts(system.content) } } : {}),
+        generationConfig: {
+          maxOutputTokens: opts.maxTokens ?? 800,
+          temperature: 0.4,
+          ...(opts.json ? { responseMimeType: 'application/json' } : {}),
+        },
       }),
       signal: AbortSignal.timeout(60_000),
     });
   } catch {
-    throw new HttpError(502, 'ai_unreachable', 'Could not reach OpenAI. Try again.');
+    throw new HttpError(502, 'ai_unreachable', 'Could not reach Gemini. Try again.');
   }
   if (!res.ok) {
     const detail = await res.json().catch(() => null);
-    console.error('OpenAI error', res.status, detail?.error?.message);
-    if (res.status === 401) throw new HttpError(502, 'ai_bad_key', 'The server’s OpenAI key was rejected. Check OPENAI_API_KEY in server/.env.');
-    if (res.status === 429) throw new HttpError(429, 'ai_rate_limited', 'OpenAI rate limit or quota reached. Wait a minute or check OpenAI billing.');
-    if (res.status === 404) throw new HttpError(502, 'ai_bad_model', `OpenAI model "${env.OPENAI_MODEL}" was not found. Change OPENAI_MODEL in server/.env.`);
-    throw new HttpError(502, 'ai_error', detail?.error?.message ?? `OpenAI returned an error (${res.status}).`);
+    console.error('Gemini error', res.status, detail?.error?.message);
+    if (res.status === 400 || res.status === 403) throw new HttpError(502, 'ai_bad_key', 'The server’s Gemini key was rejected. Check GEMINI_API_KEY in server/.env.');
+    if (res.status === 429) throw new HttpError(429, 'ai_rate_limited', 'Gemini rate limit or quota reached. Wait a minute and try again.');
+    if (res.status === 404) throw new HttpError(502, 'ai_bad_model', `Gemini model "${env.GEMINI_MODEL}" was not found. Change GEMINI_MODEL in server/.env.`);
+    throw new HttpError(502, 'ai_error', detail?.error?.message ?? `Gemini returned an error (${res.status}).`);
   }
   const data = await res.json();
-  const text: string | undefined = data?.choices?.[0]?.message?.content;
-  if (!text) throw new HttpError(502, 'ai_empty', 'OpenAI returned an empty answer. Try again.');
+  const text: string | undefined = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('');
+  if (!text) throw new HttpError(502, 'ai_empty', 'Gemini returned an empty answer. Try again.');
   return text;
 }
 

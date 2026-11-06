@@ -8,7 +8,7 @@ const app = createApp();
 const server = app.listen(env.PORT, () => {
   console.log(`🚀 Loop API on http://localhost:${env.PORT}/api  (${env.NODE_ENV})`);
   console.log(`   SMS: ${env.SMS_PROVIDER}${env.SMS_PROVIDER === 'console' ? ' (login codes print here)' : ''}`);
-  console.log(`   AI:  ${aiConfigured() ? `on (${env.OPENAI_MODEL})` : 'off: add OPENAI_API_KEY to server/.env'}`);
+  console.log(`   AI:  ${aiConfigured() ? `on (${env.GEMINI_MODEL})` : 'off: add GEMINI_API_KEY to server/.env'}`);
 });
 
 const shutdown = async (sig: string) => {

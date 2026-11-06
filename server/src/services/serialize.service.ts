@@ -43,7 +43,7 @@ export async function bootstrap(userId: string) {
   const ai = user.toObject().ai ?? {};
   return {
     user: clientUser(user),
-    server: { aiConfigured: aiConfigured(), aiModel: env.OPENAI_MODEL },
+    server: { aiConfigured: aiConfigured(), aiModel: env.GEMINI_MODEL },
     data: {
       schemaVersion: 1,
       supplements: supplements.map((x) => x.toJSON()),

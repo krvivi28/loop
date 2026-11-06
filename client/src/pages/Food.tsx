@@ -290,7 +290,7 @@ function MealEditor({ state, onClose }: { state: Editor; onClose: () => void }) 
           </label>
           {!server.aiConfigured && (
             <p className="mt-3 rounded-xl bg-warn/10 px-3 py-2.5 text-sm">
-              AI isn’t set up on the server yet (add OPENAI_API_KEY to server/.env). You can enter values manually.
+              AI isn’t set up on the server yet (add GEMINI_API_KEY to server/.env). You can enter values manually.
             </p>
           )}
           {err && <p className="mt-3 rounded-xl bg-bad/10 px-3 py-2.5 text-sm text-ink">{err.message}</p>}
