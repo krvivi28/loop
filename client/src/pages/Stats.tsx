@@ -50,7 +50,7 @@ export default function Stats() {
         : rangeKeys(start, end).map((d) => {
             const n = nutritionTotals(mealsOn(data, d));
             const t = targetsFor(data, d);
-            return { label: formatShort(d), kcal: n.calories, protein: n.proteinG, kcalT: t.calories, proteinT: t.proteinG };
+            return { label: formatShort(d), kcal: n.calories, protein: n.proteinG, kcalT: t.calories, proteinT: t.proteinG, fat: n.fatG, fatT: t.fatG };
           }),
     [data, start, end, singleDay],
   );
@@ -131,6 +131,7 @@ export default function Stats() {
           <>
             <TrendCard title={`Calories, ${rangeLabel.toLowerCase()}`} data={macroDays} k="kcal" t="kcalT" unit="kcal" color="rgb(var(--accent))" />
             <TrendCard title={`Protein, ${rangeLabel.toLowerCase()}`} data={macroDays} k="protein" t="proteinT" unit="g" color="#FF4081" />
+            <TrendCard title={`Fat, ${rangeLabel.toLowerCase()}`} data={macroDays} k="fat" t="fatT" unit="g" color="#29B6F6" />
           </>
         )}
 
